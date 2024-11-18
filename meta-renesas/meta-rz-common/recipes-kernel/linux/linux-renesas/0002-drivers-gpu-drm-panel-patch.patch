@@ -1,0 +1,18 @@
+commit 9bb6349aa5fdf1e3d517faf32f507add7249c696
+Author: git@calixto.co.in <vipin.v@calixto.co.in>
+Date:   Fri Oct 25 17:15:01 2024 +0530
+
+    added hx8394 display support on makefile
+
+diff --git a/drivers/gpu/drm/panel/Makefile b/drivers/gpu/drm/panel/Makefile
+index 2ba560bca61d..47020c653e68 100644
+--- a/drivers/gpu/drm/panel/Makefile
++++ b/drivers/gpu/drm/panel/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_DRM_PANEL_SIMPLE) += panel-simple.o
+ obj-$(CONFIG_DRM_PANEL_ELIDA_KD35T133) += panel-elida-kd35t133.o
+ obj-$(CONFIG_DRM_PANEL_FEIXIN_K101_IM2BA02) += panel-feixin-k101-im2ba02.o
+ obj-$(CONFIG_DRM_PANEL_FEIYANG_FY07024DI26A30D) += panel-feiyang-fy07024di26a30d.o
++obj-$(CONFIG_DRM_PANEL_ROCKTECH_HX8394F) += panel-rocktech-hx8394f.o
+ obj-$(CONFIG_DRM_PANEL_ILITEK_IL9322) += panel-ilitek-ili9322.o
+ obj-$(CONFIG_DRM_PANEL_ILITEK_ILI9881C) += panel-ilitek-ili9881c.o
+ obj-$(CONFIG_DRM_PANEL_INNOLUX_P079ZCA) += panel-innolux-p079zca.o
