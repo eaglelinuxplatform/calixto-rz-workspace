@@ -1,0 +1,62 @@
+From 12ddf3b58f521abf510a5d76a00a7ca7c9a1053b Mon Sep 17 00:00:00 2001
+From: Son Trinh <son.trinh.fz@renesas.com>
+Date: Tue, 17 Sep 2024 19:02:00 +0700
+Subject: [PATCH] Support-skip-error-frame
+
+---
+ omx/gstomx.c         |  2 ++
+ omx/gstomx.h         |  4 ++++
+ omx/gstomxvideodec.c | 14 ++++++++++++++
+ 3 files changed, 20 insertions(+)
+
+diff --git a/omx/gstomx.c b/omx/gstomx.c
+index 4e82fac..0708356 100644
+--- a/omx/gstomx.c
++++ b/omx/gstomx.c
+@@ -3742,6 +3742,8 @@ gst_omx_parse_hacks (gchar ** hacks)
+       hacks_flags |= GST_OMX_HACK_SKIP_HANDLE_CODEC_DATA;
+     else if (g_str_equal (*hacks, "renesas-encmc-stride-align"))
+       hacks_flags |= GST_OMX_HACK_RENESAS_ENCMC_STRIDE_ALIGN;
++    else if (g_str_equal (*hacks, "skip-error-frame"))
++      hacks_flags |= GST_OMX_HACK_SKIP_ERROR_FRAME;  
+     else
+       GST_WARNING ("Unknown hack: %s", *hacks);
+     hacks++;
+diff --git a/omx/gstomx.h b/omx/gstomx.h
+index 0115114..09e626a 100644
+--- a/omx/gstomx.h
++++ b/omx/gstomx.h
+@@ -234,6 +234,10 @@ G_BEGIN_DECLS
+  */
+ #define GST_OMX_HACK_SKIP_HANDLE_CODEC_DATA                           G_GUINT64_CONSTANT (0x0000000000040000)
+ 
++/* Support set bSkipInterframe is OMX_TRUE.
++ */
++#define GST_OMX_HACK_SKIP_ERROR_FRAME                  G_GUINT64_CONSTANT (0x0000000000080000)
++
+ typedef struct _GstOMXCore GstOMXCore;
+ typedef struct _GstOMXPort GstOMXPort;
+ typedef enum _GstOMXPortDirection GstOMXPortDirection;
+diff --git a/omx/gstomxvideodec.c b/omx/gstomxvideodec.c
+index e09129d..1b72c3d 100644
+--- a/omx/gstomxvideodec.c
++++ b/omx/gstomxvideodec.c
+@@ -3126,6 +3126,15 @@ gst_omx_video_dec_set_format (GstVideoDecoder * decoder,
+   gst_omx_video_dec_set_latency (self);
+ #endif
+
++  /* Setting bSkipInterframe is OMX_TRUE (skip error frame) */
++  if (klass->cdata.hacks & GST_OMX_HACK_SKIP_ERROR_FRAME) {
++      OMXR_MC_VIDEO_PARAM_ERROR_CONCEALMENTTYPE   videoParamErrorConcealment;
++      GST_OMX_INIT_STRUCT (&videoParamErrorConcealment);
++      videoParamErrorConcealment.nPortIndex       = 1;
++      videoParamErrorConcealment.bSkipInterframe  = OMX_TRUE;
++      gst_omx_component_set_parameter(self->dec, OMXR_MC_IndexParamVideoErrorConcealment, &videoParamErrorConcealment);
++  }
++
+   self->downstream_flow_ret = GST_FLOW_OK;
+   return TRUE;
+ }
+-- 
+2.25.1
+
